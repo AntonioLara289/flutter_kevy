@@ -15,10 +15,13 @@ class ProductoController {
   }
 
   Future<List<Producto>> getProductos({
+    String nombre_producto = "",
     bool mostrar_habilitados = true, 
     bool mostrar_deshabilitados = false}) async {
 
-    List estatusBuscar = [];
+    final List<dynamic> estatusBuscar = [];
+
+    String buscar_nombre = "";
 
     if(mostrar_habilitados){
       estatusBuscar.add(1);
@@ -27,6 +30,8 @@ class ProductoController {
     if(mostrar_deshabilitados){
       estatusBuscar.add(0);
     }
+
+    String busqueda = "%$nombre_producto%";
     // Creamos los signos de interrogación dinámicamente según cuántos estatus haya
     // Si hay 2, será "?, ?", si hay 1, será "?"
     String placeholders = estatusBuscar.map((e) => '?').join(', ');
@@ -35,9 +40,10 @@ class ProductoController {
     final db = await database;
     final result = await db.query(
       'productos',
-      where: "estatus IN ($placeholders)", 
-      whereArgs: estatusBuscar
+      where: "estatus IN ($placeholders) AND nombre like ?", 
+      whereArgs: [...estatusBuscar, busqueda]
     );
+
     print("${result}");
     return result.map( (json) => 
       Producto.fromMap(json)).toList();

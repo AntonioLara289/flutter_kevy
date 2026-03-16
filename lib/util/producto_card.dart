@@ -3,7 +3,6 @@ import 'package:flutter_kevy_admin/models/producto.dart';
 import 'package:flutter_kevy_admin/screens/dialogs/dialog_editar_producto.dart';
 import 'package:flutter_kevy_admin/screens/dialogs/dialog_question.dart';
 import 'package:flutter_kevy_admin/storage/producto_controller.dart';
-import 'package:flutter_kevy_admin/util/productos_card.dart';
 import 'package:flutter_kevy_admin/util/snack_bar.dart';
 
 class ProductoCard extends StatefulWidget {
@@ -26,12 +25,14 @@ class _ProductoCardState extends State<ProductoCard> {
     // TODO: implement build
     return Card(
       clipBehavior: Clip.hardEdge,
-      color: widget.producto.estatus == 1 ? Color.fromARGB(255, 148, 207, 255) : Color.fromARGB(255, 243, 155, 128),
+      color: widget.producto.estatus == 1
+          ? Color.fromARGB(255, 148, 207, 255)
+          : Color.fromARGB(255, 243, 155, 128),
       child: InkWell(
         splashColor: Colors.blueAccent.withAlpha(50),
         onTap: () async {
           // debugPrint("Texto");
-          final resultado = await showDialog(
+          await showDialog(
             barrierDismissible: false,
             context: context,
             builder: (BuildContext context) =>
@@ -41,60 +42,65 @@ class _ProductoCardState extends State<ProductoCard> {
         child: SizedBox(
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: .start,
+              mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   verificarNombre(widget.producto.nombre),
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, height: 1.3),
-                  textAlign: .center,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    height: 1.3,
+                  ),
+                  textAlign: TextAlign.center,
                   maxLines: 2,
                 ),
                 Text(
                   "Existencias: ${verificarExistencias(widget.producto.existencias)}",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: .center,
+                  textAlign: TextAlign.center,
                   maxLines: 1,
                 ),
                 Text(
                   '\$${verificarPrecio(widget.producto.precio)}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: .center,
+                  textAlign: TextAlign.center,
                   maxLines: 1,
                 ),
 
                 if (widget.producto.estatus == 1)
                   ElevatedButton(
                     onPressed: () async {
-
-                      final abrirDialogQuestion = await showDialog(
+                      final confirmed = await showDialog(
                         barrierDismissible: false,
-                        context: context, 
-                        builder:  (BuildContext context) => DialogQuestion(
+                        context: context,
+                        builder: (BuildContext context) => DialogQuestion(
                           titulo: "Borrar Producto",
-                          mensaje: "¿Desea borrar el producto ${widget.producto.nombre}?",
-                        )
-                      );
-                      return ;
-                      final resultado = await deshabilitarProducto(
-                        widget.producto.id,
+                          mensaje:
+                              "¿Desea borrar el producto ${widget.producto.nombre}?",
+                        ),
                       );
 
-                      if (resultado == 1) {
-                        SnackBarNotification.mostrarMensaje(
-                          context,
-                          mensaje: "Producto eliminado",
+                      if (confirmed == true) {
+                        final resultado = await deshabilitarProducto(
+                          widget.producto.id,
                         );
-                        // _productosCardKey.currentState!.cargarDatos();
-                        widget.onRefresh();
-                      }
 
-                      if (resultado != 1) {
-                        SnackBarNotification.mostrarMensaje(
-                          context,
-                          mensaje: "Algo Salio mal",
-                          color: Colors.red,
-                        );
+                        if (mounted) {
+                          if (resultado == 1) {
+                            SnackBarNotification.mostrarMensaje(
+                              context,
+                              mensaje: "Producto eliminado",
+                            );
+                            widget.onRefresh();
+                          } else {
+                            SnackBarNotification.mostrarMensaje(
+                              context,
+                              mensaje: "Algo Salio mal",
+                              color: Colors.red,
+                            );
+                          }
+                        }
                       }
                     },
                     child: const Icon(Icons.delete),
@@ -103,36 +109,36 @@ class _ProductoCardState extends State<ProductoCard> {
                 if (widget.producto.estatus == 0)
                   ElevatedButton(
                     onPressed: () async {
-
-                      final abrirDialogQuestion = await showDialog(
+                      final confirmed = await showDialog(
                         barrierDismissible: false,
-                        context: context, 
-                        builder:  (BuildContext context) => DialogQuestion(
-                          titulo: "Habilitar Producto", 
-                          mensaje: "¿Desea habilitar el producto ${widget.producto.nombre}?"
-                        )
+                        context: context,
+                        builder: (BuildContext context) => DialogQuestion(
+                          titulo: "Habilitar Producto",
+                          mensaje:
+                              "¿Desea habilitar el producto ${widget.producto.nombre}?",
+                        ),
                       );
 
-                      return;
-                      final resultado = await habilitarProducto(
-                        widget.producto.id,
-                      );
-
-                      if (resultado == 1) {
-                        SnackBarNotification.mostrarMensaje(
-                          context,
-                          mensaje: "Producto habilitado",
+                      if (confirmed == true) {
+                        final resultado = await habilitarProducto(
+                          widget.producto.id,
                         );
-                        // _productosCardKey.currentState!.initState();
-                        widget.onRefresh();
-                      }
 
-                      if (resultado != 1) {
-                        SnackBarNotification.mostrarMensaje(
-                          context,
-                          mensaje: "Algo Salio mal",
-                          color: Colors.red,
-                        );
+                        if (mounted) {
+                          if (resultado == 1) {
+                            SnackBarNotification.mostrarMensaje(
+                              context,
+                              mensaje: "Producto habilitado",
+                            );
+                            widget.onRefresh();
+                          } else {
+                            SnackBarNotification.mostrarMensaje(
+                              context,
+                              mensaje: "Algo Salio mal",
+                              color: Colors.red,
+                            );
+                          }
+                        }
                       }
                     },
                     child: const Icon(Icons.check_circle_outline_outlined),

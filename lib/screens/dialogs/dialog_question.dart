@@ -13,12 +13,16 @@ class DialogQuestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(titulo, textAlign: .center, style: TextStyle(fontSize: 29)),
+      title: Text(
+        titulo,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 29),
+      ),
       content: SingleChildScrollView(
         // won't be scrollable
         child: Text(
           mensaje,
-          textAlign: .center,
+          textAlign: TextAlign.center,
           style: TextStyle(fontSize: 22),
         ),
       ),
@@ -37,10 +41,12 @@ class DialogQuestion extends StatelessWidget {
                 child: Text("No"),
               ),
             ),
-          const SizedBox(width: 15), // Un respiro entre los botones
+            const SizedBox(width: 15), // Un respiro entre los botones
             Expanded(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,

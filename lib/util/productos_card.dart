@@ -4,14 +4,15 @@ import 'package:flutter_kevy_admin/storage/producto_controller.dart';
 import 'package:flutter_kevy_admin/util/producto_card.dart';
 
 class ProductosCard extends StatefulWidget {
-
-  final bool mostrar_habilitados;
-  final bool mostrar_deshabilitados;
+  final bool mostrarHabilitados;
+  final bool mostrarDeshabilitados;
+  final String nombre_producto;
 
   const ProductosCard({
-    super.key, 
-    this.mostrar_deshabilitados = false,
-    this.mostrar_habilitados = true
+    super.key,
+    this.mostrarDeshabilitados = false,
+    this.mostrarHabilitados = true,
+    this.nombre_producto = ""
   });
 
   @override
@@ -30,25 +31,24 @@ class ProductosCardState extends State<ProductosCard> {
   }
 
   // ESTA FUNCIÓN ES LA CLAVE
-  void cargarDatos() { // Asegúrate de que NO tenga guion bajo
+  void cargarDatos() {
+    // Asegúrate de que NO tenga guion bajo
     setState(() {
-      print('mostrar_habilitados: ${widget.mostrar_habilitados}');
-      print('mostrar_deshabilitados: ${widget.mostrar_deshabilitados}');
-
       _productosFuture = ProductoController.instance.getProductos(
-        mostrar_habilitados: widget.mostrar_habilitados, 
-        mostrar_deshabilitados: widget.mostrar_deshabilitados
+        mostrar_habilitados: widget.mostrarHabilitados,
+        mostrar_deshabilitados: widget.mostrarDeshabilitados,
+        nombre_producto: widget.nombre_producto
       );
     });
   }
 
-  void didUpdateWidget(ProductosCard oldWidget){
+  @override
+  void didUpdateWidget(ProductosCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if(
-      oldWidget.mostrar_deshabilitados != widget.mostrar_deshabilitados ||
-      oldWidget.mostrar_habilitados != widget.mostrar_habilitados
-    ){
+    if (oldWidget.mostrarDeshabilitados != widget.mostrarDeshabilitados ||
+        oldWidget.mostrarHabilitados != widget.mostrarHabilitados || 
+        oldWidget.nombre_producto != widget.nombre_producto) {
       cargarDatos();
     }
   }
@@ -63,7 +63,9 @@ class ProductosCardState extends State<ProductosCard> {
         builder: (context, snapshot) {
           // ... (el resto de tu lógica de snapshot igual que antes)
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.blueAccent,));
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.blueAccent),
+            );
           }
 
           final productos = snapshot.data ?? [];
@@ -74,11 +76,14 @@ class ProductosCardState extends State<ProductosCard> {
               crossAxisSpacing: 10,
               // mainAxisSpacing: 10,
               // childAspectRatio: 2.0, // Square items
-              childAspectRatio: 0.8, // <--- Juega con este valor (ej. 0.7 o 0.6) para dar más altura
+              childAspectRatio:
+                  0.8, // <--- Juega con este valor (ej. 0.7 o 0.6) para dar más altura
             ),
             itemCount: productos.length,
-            itemBuilder: (context, index) => 
-            ProductoCard(producto: productos[index], onRefresh: cargarDatos)
+            itemBuilder: (context, index) => ProductoCard(
+              producto: productos[index],
+              onRefresh: cargarDatos,
+            ),
           );
         },
       ),
@@ -93,15 +98,14 @@ class ProductosCardState extends State<ProductosCard> {
     return nombre;
   }
 
-  String verificarExistencias(int? existencias){
-    if(existencias == null){
+  String verificarExistencias(int? existencias) {
+    if (existencias == null) {
       return "Sin valor";
     }
 
     return existencias.toString();
   }
 }
-
 
 /*
 Card(
